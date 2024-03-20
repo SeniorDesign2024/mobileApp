@@ -1,34 +1,36 @@
 import React, { Component } from 'react'
-import { View} from 'react-native'
-import { Button, Text, TextInput,  Modal, Portal, PaperProvider } from 'react-native-paper'
+import NextEventCounter from '../components/nextEventCounter';
+import VideoStream from '../components/stream/wrapper';
+
 export default class Home extends Component {
   constructor(props){
     super(props);
     this.state = {
       isAuthenticated: false,
       isMounted: false,
-      email: "",
-      password: "",
-      alert : false
+      eventId : null
     };
+    this.setEventId = this.setEventId.bind(this);
   }
-  
-  componentDidMount(){
-    fetch('http://junk')
-      .then(res => this.setState({isAuthenticated: true, isMounted: true}))
-      .catch(err => this.setState({isAuthenticated: true, isMounted: true}))
+
+  setEventId = (eventId) =>{
+    console.log("test")
+    this.setState({eventId});
   }
-  
+  test = () =>{
+
+  }
 
   render() {
+    const {eventId} = this.state;
     return(
-      <View style = {{
-        flex: 1,
-        justifyContent: 'center',
-      }}>
-        <Button onPress={() => this.props.navigation.replace('Sample-Event')}>Sample Event</Button>
-        <Button onPress={() => this.props.navigation.replace('Event')}>Real Event</Button>
-      </View>
-    )
+      <>
+        {eventId ? (
+          <VideoStream setEventId={this.setEventId} eventId = {eventId}/>
+        ) : (
+          <NextEventCounter setEventId={this.setEventId}/>
+        )}
+      </>
+    );
   }
 };
