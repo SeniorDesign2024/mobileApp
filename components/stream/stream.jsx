@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions';
+import * as FileSystem from 'expo-file-system';
 
 // Function to encode image file to Base64
 const encodeImageToBase64 = async (uri) => {
@@ -33,14 +34,16 @@ export default function Stream() {
     (async () => {
       const { status } = await Camera.requestPermissionsAsync();
       setHasPermission(status === 'granted');
-      if(status === 'granted'){
-        startRecording
-      }
+      // if(status === 'granted'){
+      //   startRecording()
+      // }
     })();
   }, []);
 
   const startRecording = async () => {
+    console.log("1");
     if (cameraRef) {
+      console.log("2");
       // Interval to capture frames every second
       const intervalId = setInterval(async () => {
         try {
@@ -50,7 +53,7 @@ export default function Stream() {
           const base64Image = await encodeImageToBase64(uri);
   
           // Send the captured frame in a fetch call
-          const response = await fetch('http://localhost:3001/api/auth/signin', {
+          const response = await fetch('http://localhost:3001/api/events/process-event', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -93,7 +96,10 @@ export default function Stream() {
       <Camera
         style={styles.camera}
         type={Camera.Constants.Type.back}
-        ref={(ref) => setCameraRef(ref)}
+        ref={(ref) => {
+          setCameraRef(ref)
+          startRecording()
+        }}
       >
       </Camera>
     </View>
