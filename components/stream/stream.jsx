@@ -4,6 +4,7 @@ import { Camera } from 'expo-camera';
 import * as FileSystem from 'expo-file-system';
 import { authFetch } from '../../utils/tokenManager';
 
+
 class CameraComponent extends Component {
   constructor(props) {
     super(props);
@@ -35,6 +36,7 @@ class CameraComponent extends Component {
         body: JSON.stringify({ event_id : this.props.eventId, image: pictureData.base64 }),
         headers: {
           'Content-Type': 'application/json'
+
         }
       });
       await this.deletePhoto(pictureData);
@@ -82,6 +84,7 @@ class CameraComponent extends Component {
       </View>
     );
   }
+
 }
 
 export default CameraComponent;
