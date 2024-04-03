@@ -36,31 +36,27 @@ class Login extends Component {
       .catch(err => this.setState({isAuthenticated: true, isMounted: true}))
   }*/
 
-  login = () => {
+  login = async () => {
+    try{
     //this.setState({alert : true})
-    fetch(`http://localhost:3001/api/auth/signin`, {
+    const res = await fetch(`http://localhost:3001/api/auth/signin`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json" // Specify JSON content type
-      },
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         "username": this.state.email,
         "password": this.state.password
       })
-    }).then(res =>{
-      if(res.ok){
-        return res.json();
-      } else {
-        throw new Error()
-      }
-    }).then(async res =>{
-      await storeToken(res.accessToken);
-      this.props.navigation.replace('Home');
-      return true;
-    }).catch(err => {
-      console.log(err);
-      this.setState({loading : false});
     })
+    if(!res.ok){
+      throw new Error("Bad");
+    }
+      const body = await res.json();
+      await storeToken(body.accessToken);
+      this.props.navigation.replace('Home');
+      //else throw new Error("Bad");
+    } catch(err) {
+      this.setState({error : true})
+    }
   }
 
   render() {

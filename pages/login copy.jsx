@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { View, StyleSheet, Image} from 'react-native'
 import { Button, Text, TextInput,  Modal, Portal, withTheme } from 'react-native-paper'
+import { storeToken } from '../utils/tokenManager';
+
 
 const styles = StyleSheet.create({
   baseText: {
@@ -25,7 +27,7 @@ class Login extends Component {
       isMounted: false,
       email: "",
       password: "",
-      alert : false
+      error : false
     };
   }
   
@@ -33,9 +35,10 @@ class Login extends Component {
     console.log(this.props);
   }
 
-  login = () => {
+  login = async () => {
+    try{
     //this.setState({alert : true})
-    fetch(`http://localhost:3001/api/auth/signin`, {
+    const res = await fetch(`http://localhost:3001/api/auth/signin`, {
       method: "POST",
       headers: {'Content-Type': 'application/json'},
       credentials: "include",
@@ -43,13 +46,16 @@ class Login extends Component {
         "username": this.state.email,
         "password": this.state.password
       })
-    }).then(res =>{
+    })
+    if(!res.ok){
+      throw new Error("Bad");
+    }
+      await storeToken(res.token)
       this.props.navigation.replace('Home');
       //else throw new Error("Bad");
-    }).catch(err => {
-      this.props.navigation.replace('Home');  
-      console.log("error");
-    })
+    } catch(err) {
+      this.setState({error : true})
+    }
   }
 
   render() {
@@ -80,4 +86,4 @@ class Login extends Component {
   }
 };
 
-export default withTheme(Login)
+export default withTheme(Login);
