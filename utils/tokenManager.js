@@ -28,3 +28,24 @@ export const clearToken = async () => {
     console.error('Error clearing token:', error);
   }
 };
+
+// authFetch.js
+export const authFetch = async (url, options = {}) => {
+
+  const authToken = await getToken();
+  // Handle correctly
+  const headers = {
+    ...options.headers,
+    "x-access-token": authToken,
+  };
+  console.log(JSON.stringify({
+    ...options,
+    headers: headers
+  }))
+
+  return fetch(url, {
+    ...options,
+    headers: headers
+  });
+};
+

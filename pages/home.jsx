@@ -14,7 +14,6 @@ export default class Home extends Component {
   }
 
   setEventId = (eventId) =>{
-    console.log("test")
     this.setState({eventId});
   }
   test = () =>{

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { View, StyleSheet, Image} from 'react-native'
 import { Button, Text, ActivityIndicator, withTheme } from 'react-native-paper'
+import { authFetch } from '../utils/tokenManager';
 
 const styles = StyleSheet.create({
   baseText: {
@@ -21,58 +22,95 @@ class NextEventCounter extends Component {
   constructor(props){
     super(props);
     this.state = {
-      eventId: 4,
+      event_id : null,
+      name : "Your event",
       isMounted: false,
-      timestamp: "",
       countdown : {},
-      name: "",
     };
   }
-  
-  /*componentDidMount(){
-    fetch('http://junk')
-      .then(res => this.setState({isAuthenticated: true, isMounted: true}))
-      .catch(err => this.setState({isAuthenticated: true, isMounted: true}))
-  }*/
-  componentDidMount(){
-    this.countdown(new Date(), new Date((new Date()).getTime() + 5000));
+
+  async componentDidMount(){
+    try{
+      const res = await authFetch('http://localhost:3001/api/event/next-event',{
+        headers: {'Content-Type': 'application/json'}
+      });
+      if(res.status == 400) {
+        this.setState({isMounted : true})
+      }else if(!res.ok) {
+        throw res.status;
+      }else{
+        const { name, event_id, timestamp } = await res.json();
+        this.setState({event_id, timestamp, name}, () => {
+          this.countdown(new Date(), new Date(this.state.timestamp));
+        })
+      }
+    } catch(err){
+      console.error(err);
+      this.props.navigation.replace('Login');
+    }
   }
 
 countdown = (timestamp1, timestamp2) =>{
-    // Calculate the time difference in milliseconds
-    const timeDiff = Math.abs(timestamp2 - timestamp1);
   
-    // Convert the time difference to seconds
+    const timeDiff = timestamp2 - timestamp1;
     let remainingTime = timeDiff / 1000;
-  
-    // Update the countdown timer every second
     const countdownInterval = setInterval(() => {
-      // Calculate hours, minutes, and seconds from remaining time
       this.setState({
-        isMounted : true,
         countdown : {
           hours : Math.floor(remainingTime / 3600),
           minutes : Math.floor((remainingTime % 3600) / 60),
           seconds : Math.floor(remainingTime % 60)
-        }
+        },
+        countdownInterval,
+        isMounted : true
       });
   
-      // Decrease the remaining time by one second
       remainingTime--;
-  
-      // If the countdown timer reaches zero, stop the interval
       if (remainingTime < 0) {
         clearInterval(countdownInterval);
-        this.props.setEventId(this.state.eventId);
+        console.log(this.state.event_id)
+        this.props.setEventId(this.state.event_id);
       }
-    }, 1000); // Update the timer every second
+    }, 1000);
   }
   
+mostRecentEvent = async () =>{
+  try{
+    const res = authFetch('http://localhost:3001/api/event/test',{
+      headers: {'Content-Type': 'application/json'}
+    });
+    if(!res.ok) throw res.status;
+    const body = await res.json();
+    // TODO: handle no event
+    this.setState({event : body, isMounted : true}, () => {
+      this.countdown(new Date(), this.state.event.end_time);
+    })
+  } catch(err){
+    // TODO implement retry loop
+    this.props.navigation.replace('Login');
+  }
+
+  const countdownInterval = setInterval(() => {
+    this.setState({
+      countdown : {
+        hours : Math.floor(remainingTime / 3600),
+        minutes : Math.floor((remainingTime % 3600) / 60),
+        seconds : Math.floor(remainingTime % 60)
+      }
+    });
+
+    remainingTime--;
+    if (remainingTime < 0) {
+      clearInterval(countdownInterval);
+      this.props.setEventId(this.state.eventId);
+    }
+  }, 1000);
+}
 
   render() {
     const colors = this.props.theme.colors;
-    const {countdown, isMounted } = this.state;
-    const {hours, minutes, seconds} = countdown;
+    const {countdown : {hours, minutes, seconds}, isMounted, name, event_id, timestamp} = this.state;
+
     return(
       <View style={{
         flex: 1,
@@ -91,11 +129,18 @@ countdown = (timestamp1, timestamp2) =>{
               alignItems: 'center',
               width: '80%' // Set maxWidth instead of width
             }}>
-              <Text style={{...styles.titleText, color : colors.secondary}}>Your next event will start in:</Text>
-              <View style={{ width: '100%', paddingVertical : '20px', alignItems : 'center'}}> {/* Set width to '100%' for TextInput container */}
-              <Text style={{...styles.baseText, color: colors.dark_purple}}>{hours.toString().padStart(2, '0')} : {minutes.toString().padStart(2, '0')} : {seconds.toString().padStart(2, '0')}
-              </Text>
-              </View>
+              { event_id ? (
+                <>
+                  <Text style={{...styles.titleText, color : colors.secondary}}>{name} will start in:</Text>
+                  <View style={{ width: '100%', paddingVertical : '20px', alignItems : 'center'}}>
+                    <Text style={{...styles.baseText, color: colors.dark_purple}}>
+                      {hours.toString().padStart(2, '0')} : {minutes.toString().padStart(2, '0')} : {seconds.toString().padStart(2, '0')}
+                    </Text>
+                  </View>
+                </>                
+              ) : (
+                  <Text style={{...styles.titleText, color : colors.secondary}}>You currently have no events scheduled</Text>
+              )}
             </View>
           </>
         ) : (

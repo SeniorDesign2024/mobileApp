@@ -2,19 +2,29 @@ import React, { Component } from 'react'
 import Stream from './stream';
 import { View } from 'react-native'
 import { ActivityIndicator, withTheme, Text, } from 'react-native-paper'
+import { authFetch } from '../../utils/tokenManager';
+
 class Wrapper extends Component {
+
   constructor(props){
     super(props);
     this.state = {
       isAuthenticated: false,
       isMounted: false,
       isEventLive : false,
-      endTime : new Date((new Date()).getTime() + 5000)
+      endTime : new Date((new Date()).getTime() + 500000)
     };
   }
 
-  componentDidMount(){
-    //fetch('/api/event/event-details')
+
+  async componentDidMount(){
+    /*const res = await authFetch('http://localhost:3001/api/event/process-event', { 
+        method: "POST", 
+        body: JSON.stringify({ event_id : this.props.eventId }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });*/
     /*this.setState({
       eventId : res.event_id,
       startTime : res.start_time,
@@ -41,13 +51,13 @@ class Wrapper extends Component {
   }
 
   render() {
-    const {eventId, isMounted } = this.state;
+    const {isMounted } = this.state;
     const colors = this.props.theme.colors;
     return(
       <>
         {isMounted ? (
           <>
-            <Stream eventId = {eventId} />
+            <Stream eventId = {this.props.eventId} />
           </>
         ) : (
           <View style={{
