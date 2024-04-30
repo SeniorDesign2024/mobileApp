@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Animated } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as FileSystem from 'expo-file-system';
 import { authFetch } from '../../utils/tokenManager';
@@ -11,7 +11,8 @@ class CameraComponent extends Component {
     this.state = {
       hasPermission: null,
       cameraRef: null,
-      intervalId: null
+      intervalId: null,
+      dotOpacity: new Animated.Value(1)
     };
   }
 
@@ -21,6 +22,9 @@ class CameraComponent extends Component {
 
     const intervalId = setInterval(this.captureFrame, 10_000);
     this.setState({ intervalId });
+
+    // Start animation for flashing dot
+    this.startDotAnimation();
   }
 
   componentWillUnmount() {
@@ -54,7 +58,7 @@ class CameraComponent extends Component {
 
   deletePhoto = async ({ uri }) => {
     try {
-    await FileSystem.deleteAsync(uri);
+      await FileSystem.deleteAsync(uri);
     } catch(err) {
       console.error("Error: Unable to delete image from memory");
     }
@@ -64,8 +68,25 @@ class CameraComponent extends Component {
     this.setState({ cameraRef: ref });
   };
 
+  startDotAnimation = () => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(this.state.dotOpacity, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true
+        }),
+        Animated.timing(this.state.dotOpacity, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true
+        })
+      ])
+    ).start();
+  };
+
   render() {
-    const { hasPermission } = this.state;
+    const { hasPermission, dotOpacity } = this.state;
 
     if (hasPermission === null) {
       return <View />;
@@ -80,6 +101,18 @@ class CameraComponent extends Component {
           style={{ flex: 1 }}
           type={Camera.Constants.Type.back}
           ref={this.setCameraRef}
+        />
+        <Animated.View
+          style={{
+            position: 'absolute',
+            top: 20,
+            right: 20,
+            width: 20,
+            height: 20,
+            borderRadius: 10,
+            backgroundColor: 'red',
+            opacity: dotOpacity
+          }}
         />
       </View>
     );
