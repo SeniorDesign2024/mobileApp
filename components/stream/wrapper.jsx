@@ -57,7 +57,7 @@ class Wrapper extends Component {
       <>
         {isMounted ? (
           <>
-            <Stream eventId = {this.props.eventId} />
+            <Stream eventId = {this.props.event.id} />
           </>
         ) : (
           <View style={{

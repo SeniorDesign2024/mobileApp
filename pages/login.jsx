@@ -114,6 +114,7 @@ class Login extends Component {
             <View style={{ width: '100%', paddingVertical : 15}}>
               <Text style={{...styles.baseText, color : colors.dark_purple}}>Password</Text>
               <TextInput
+              secureTextEntry={true}
                 style={{ width: '100%' }}
                 mode = 'outlined'
                 onChangeText={(text) => this.setState({ password: text })}

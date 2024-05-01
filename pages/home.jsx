@@ -65,7 +65,7 @@ export default class Home extends Component {
             res = await authFetch('http://localhost:3001/api/event/event-details',{
               headers: {'Content-Type': 'application/json'},
               method : 'POST',
-              body : JSON.stringify({eventId})
+              body : JSON.stringify({eventId : {eventId}})
             })
             if(!res.ok) {
               throw res.status;
