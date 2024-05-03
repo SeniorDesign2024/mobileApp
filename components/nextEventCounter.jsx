@@ -17,7 +17,10 @@ const styles = StyleSheet.create({
     color : "black"
   }
 });
-
+/**
+ * The next event counter displays a countdown until next event starts (logic handled in /pages/home.jsx)
+ * @extends Component
+ */
 class NextEventCounter extends Component {
   constructor(props){
     super(props);
@@ -43,7 +46,7 @@ class NextEventCounter extends Component {
               flex: 1,
               justifyContent: 'center',
               alignItems: 'center',
-              width: '80%' // Set maxWidth instead of width
+              width: '80%'
             }}>
               { eventId ? (
                 <>

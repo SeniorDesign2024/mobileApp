@@ -2,8 +2,10 @@ import React, { Component } from 'react'
 import { View, StyleSheet, Image, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback, Platform} from 'react-native'
 import { Button, Text, TextInput, withTheme, Snackbar } from 'react-native-paper'
 import { storeToken } from '../utils/tokenManager';
+
+// The mobile app requires different views when rendered in the web
 const config = {
-  device : 'web'
+  device : 'web' // enum : ['web', 'mobile']
 }
 
 const styles = StyleSheet.create({
@@ -83,6 +85,7 @@ class Login extends Component {
   render() {
     const colors = this.props.theme.colors;
     const {error} = this.state;
+    
     const WrapperComponent = config.device == "web" ? View : TouchableWithoutFeedback;
     return(
       <WrapperComponent onPress={config.device !== 'web' ? Keyboard.dismiss : null}>
