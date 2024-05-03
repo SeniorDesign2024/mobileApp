@@ -4,7 +4,7 @@ import VideoStream from '../components/stream/wrapper';
 import { authFetch } from '../utils/tokenManager';
 
 /**
- * Login Page
+ * Home page responsible for rendering event countdown or video stream
  * @extends Component
  */
 export default class Home extends Component {
@@ -76,7 +76,6 @@ export default class Home extends Component {
               let streamTimeout = null;
               const startTimeDate = new Date(startTime);
               if(startTimeDate.getTime() > Date.now()){
-                console.log("one of thes")
                 countdownInterval = this.eventCountdown(new Date(), startTimeDate);
                 this.setState({
                   event : {
@@ -86,7 +85,6 @@ export default class Home extends Component {
                   }
                 });
               } else {
-                console.log("heas to be true")
                 streamInterval = this.streamDuration(endTime);
                 this.setState({
                   event : {
@@ -111,7 +109,6 @@ export default class Home extends Component {
           } catch(err){
             console.error(err);
           }
-        // Updated event start/endtime
         } else{
           return;
         }
